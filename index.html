@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <webview style="width: 100vw;min-height: 100vh;" src="http://localnumbercaller:3000"></webview>
+  </body>
+</html>
+<!--
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简易叫号系统</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+        #controller { display: none; } /* 默认隐藏控制器 */
+        input, button { font-size: 20px; padding: 10px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>简易叫号系统</h1>
+    <p>连接状态: <span id="status">正在连接...</span></p>
+    <div>
+        <div style="display: flex;justify-content: center;">房间号：<div id="text-room-id"></div></div>
+        <input placeholder="请输入房间号" id="roomId" />
+        <button onclick="confirm()">确认</button>
+    </div>
+    <!-- 引入Socket.IO客户端库 -->
+    <script src="./socket.io.js"></script>
+    <script>
+        // 建立与服务器的连接
+        const socket = io('ws://localnumbercaller:3000');
+        const textRoomId = document.getElementById('text-room-id');
+        const statusElement = document.getElementById('status');
+        let localStorageRoomId = localStorage.getItem('roomId');
+
+        if (localStorageRoomId) {
+            textRoomId.textContent = localStorageRoomId;
+        } else {
+            textRoomId.textContent = '-';
+        }
+
+        const confirm = () => {
+            const roomId = document.getElementById('roomId').value;
+            localStorage.setItem('roomId', roomId);
+            localStorageRoomId = roomId;
+            textRoomId.textContent = roomId;
+        };
+
+        // 连接成功
+        socket.on('connect', () => {
+            statusElement.textContent = '已连接 (' + socket.id + ')';
+            statusElement.style.color = 'green';
+        });
+
+        // 连接断开
+        socket.on('disconnect', () => {
+            statusElement.textContent = '连接断开';
+            statusElement.style.color = 'red';
+        });
+
+        socket.on('playSound', (event) => {
+            console.log('localStorageRoomId', localStorageRoomId, event, localStorageRoomId.toString() === event.roomId);
+            if (localStorageRoomId.toString() === event.roomId) {
+                speakNumber(event.number);
+            }
+        });
+
+        // 使用Web Speech API朗读文本
+        function speakNumber(num) {
+            const utterance = new SpeechSynthesisUtterance(num);
+            utterance.lang = 'zh-CN'; // 设置中文语音
+            utterance.rate = 1.0; // 语速
+            speechSynthesis.speak(utterance);
+        }
+    </script>
+</body>
+</html> -->
