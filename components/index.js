@@ -7,8 +7,8 @@ const inputRoom = document.getElementById('input-room');
 
 let localStorageRoomId = localStorage.getItem('roomId');
 // const websocketURL = 'ws://2.136.15.67:3000';
-// const websocketURL = 'ws://2.136.15.93:3000';
-const websocketURL = 'ws://dis-macbook-pro.local:3000';
+const websocketURL = 'ws://2.136.15.93:3000';
+// const websocketURL = 'ws://dis-macbook-pro.local:3000';
 let socket = null;
 const pc = new RTCPeerConnection();
 let streamMedia = null;

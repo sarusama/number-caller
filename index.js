@@ -1,8 +1,11 @@
-const { app, BrowserWindow, session, ipcMain, dialog, Notification, Tray, Menu } = require('electron');
+const { app, BrowserWindow, session, ipcMain, dialog, Notification, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
 
 let mainWindow = null;
 let tray = null;
+let popup = null;
+
+let isQuit = false;
 
 function createWindow() {
   session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
@@ -20,7 +23,7 @@ function createWindow() {
     height: 700,
     minWidth: 800,
     minHeight: 600,
-    icon: path.join(__dirname, 'transparent.png'),
+    icon: path.join(__dirname, 'iconTemplate.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload/index.js'),
       nodeIntegration: true,
@@ -40,16 +43,26 @@ function createWindow() {
   // mainWindow.loadURL('http://1.1.3.95:3000/');
   // mainWindow.loadFile('webrtc.html');
 
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
-  });
+  // mainWindow.once('ready-to-show', () => {
+  //   mainWindow.show();
+  // });
 
-  // // 窗口关闭事件
+  // 窗口关闭事件
+  mainWindow.on('close', (event) => {
+    if (!isQuit) {
+      event.preventDefault();
+      mainWindow.hide();
+    }
+  });
   // mainWindow.on('closed', () => {
+  //   mainWindow.removeAllListeners();
   //   mainWindow = null;
   // });
 
-  tray = new Tray(path.join(__dirname, 'transparent.png'));
+  const iconPath = path.join(__dirname, 'iconTemplate.png');
+  const icon = nativeImage.createFromPath(iconPath);
+
+  icon.setTemplateImage(true);
 
   const contextMenu = Menu.buildFromTemplate([
     {
@@ -60,11 +73,13 @@ function createWindow() {
     },
     {
       label: '退出',
-      click:()=>{
+      click: () => {
         app.quit();
       }
     },
-  ])
+  ]);
+
+  tray = new Tray(icon);
   // 点击图标展示
   tray.on('click',() => {
     mainWindow.show();
@@ -72,17 +87,18 @@ function createWindow() {
   // 鼠标放置上去显示的文本
   tray.setToolTip('打开叫号系统');
   tray.setContextMenu(contextMenu);
-
-  return mainWindow;
 }
 
 app.commandLine.appendSwitch('disable-site-isolation-trials');
 app.commandLine.appendSwitch('disable-features', 'WebRtcHideLocalIpsWithMdns');
 
 function createPopup(closePopup) {
-  let popup = null;
   // 监听渲染进程发来的弹窗请求
   ipcMain.on('show-popup', (event, data) => {
+    if (popup) {
+      // 已有弹窗
+      return;
+    }
     // 创建弹窗窗口
     popup = new BrowserWindow({
       width: 450,
@@ -114,13 +130,14 @@ function createPopup(closePopup) {
 
   ipcMain.on('close-popup', (event, data) => {
     popup.close();
+    popup = null;
     closePopup(data);
   });
 }
 
 // 应用准备就绪
 app.whenReady().then(() => {
-  const mainWindow = createWindow();
+  createWindow();
 
   createPopup((data) => {
     mainWindow.webContents.send('send-to-main', data);
@@ -133,21 +150,22 @@ app.setLoginItemSettings({
   openAsHidden: true,
 });
 
-// // 所有窗口关闭时
-// app.on('window-all-closed', () => {
-//   // 在macOS上，应用通常保持活动状态
-//   if (process.platform !== 'darwin') {
-//     app.quit();
-//   }
-// });
+// 所有窗口关闭时
+app.on('window-all-closed', () => {
+  // 在macOS上，应用通常保持活动状态
+});
 
-// app.on('activate', () => {
-//   // 在macOS上，当单击停靠图标并且没有其他窗口打开时，
-//   // 通常会在应用程序中重新创建一个窗口。
-//   if (BrowserWindow.getAllWindows().length === 0) {
-//     createWindow();
-//   }
-// });
+app.on('activate', () => {
+  // // 在macOS上，当单击停靠图标并且没有其他窗口打开时，
+  // // 通常会在应用程序中重新创建一个窗口。
+  // if (BrowserWindow.getAllWindows().length === 0) {
+  //   createWindow();
+  // }
+});
+
+app.on('before-quit', () => {
+  isQuit = true;
+});
 
 // IPC通信处理
 ipcMain.handle('show-notification', (event, title, body) => {
