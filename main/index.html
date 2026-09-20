@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>叫号系统</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+        #controller { display: none; } /* 默认隐藏控制器 */
+        input, button { font-size: 20px; padding: 10px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>叫号系统</h1>
+    <p>连接状态: <span id="status">正在连接...</span></p>
+    <div>
+        <div style="display: flex;justify-content: center;gap: 10px;" id="room-id-div">
+            班级：<div id="text-room-id"></div>
+            <a id="edit-button" onclick="edit()">编辑</a>
+        </div>
+        <div id="input-room" style="display: flex;justify-content: center;gap: 10px;">
+            <input placeholder="请输入班级" id="room-id" />
+            <button id="confirm-button" onclick="confirm()">确认</button>
+        </div>
+    </div>
+    <script src="../components/index.js"></script>
+</body>
+</html>
